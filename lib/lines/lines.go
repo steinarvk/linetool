@@ -160,7 +160,7 @@ func OverwriteFile(filename string, lines []string) error {
 	return nil
 }
 
-func CreateOrExpect(filename string, lines []string) error {
+func CreateOrExpect(filename string, lines []string, allowEmpty bool) error {
 	_, err := os.Stat(filename)
 	if os.IsNotExist(err) {
 		return OverwriteFile(filename, lines)
@@ -172,6 +172,9 @@ func CreateOrExpect(filename string, lines []string) error {
 	}
 
 	if !reflect.DeepEqual(existingLines, lines) {
+		if len(existingLines) == 0 && allowEmpty {
+			return OverwriteFile(filename, lines)
+		}
 		return fmt.Errorf("expected %q to contain %q if it existed, but it contained %q", filename, lines, existingLines)
 	}
 
